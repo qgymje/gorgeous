@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"git.verystar.cn/GaomingQian/gorgeous/dispatcher"
-	"git.verystar.cn/GaomingQian/gorgeous/fetcher"
-	"git.verystar.cn/GaomingQian/gorgeous/provider"
-	"git.verystar.cn/GaomingQian/gorgeous/worker"
+	"github.com/qgymje/gorgeous/dispatcher"
+	"github.com/qgymje/gorgeous/fetcher"
+	"github.com/qgymje/gorgeous/provider"
+	"github.com/qgymje/gorgeous/worker"
 )
 
 type Option func(*Gorgeous) error

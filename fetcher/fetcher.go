@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"git.verystar.cn/GaomingQian/gorgeous/provider"
-	"git.verystar.cn/GaomingQian/gorgeous/supervisor"
+	"github.com/qgymje/gorgeous/provider"
+	"github.com/qgymje/gorgeous/supervisor"
 )
 
 type Option func(f *Fetcher) error

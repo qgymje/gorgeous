@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"git.verystar.cn/GaomingQian/gorgeous"
-	"git.verystar.cn/GaomingQian/gorgeous/provider"
+	"github.com/qgymje/gorgeous"
+	"github.com/qgymje/gorgeous/provider"
 	"github.com/stretchr/testify/assert"
 )
 

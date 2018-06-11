@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"git.verystar.cn/GaomingQian/gorgeous"
+	"github.com/qgymje/gorgeous"
 	"github.com/stretchr/testify/assert"
 )
 
