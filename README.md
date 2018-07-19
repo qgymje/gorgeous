@@ -52,7 +52,6 @@ type IWorkHandler interface {
 	Name() string // worker的名字
 	Size() int // 同时开启多少个worker运行
 	HandleData(interface{}) (interface{}, error) // 接收来fetcher里的提供的数据
-	SetNext(IWorkHandler) // 可以将数据传递给下一个workHandler做处理,如果不需要传递给下级workHandler, 则空着方法即可
 	Next() IWorkHandler // 返回下一个workHandler, 如果无下级workHandler，返回nil
 	Close() error // 关闭资源
 }
