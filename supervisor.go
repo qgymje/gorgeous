@@ -1,6 +1,6 @@
-package supervisor
+package gorgeous
 
-func Supervisor(worker func(chan struct{}), size int) {
+func supervisor(worker func(chan struct{}), size int) {
 	restart := make(chan struct{})
 	go worker(restart)
 	restartCount := 1
@@ -20,7 +20,7 @@ func Supervisor(worker func(chan struct{}), size int) {
 	}()
 }
 
-func Worker(f func()) func(chan struct{}) {
+func worker(f func()) func(chan struct{}) {
 	return func(restart chan struct{}) {
 		defer func() {
 			if err := recover(); err != nil {

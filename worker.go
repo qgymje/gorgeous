@@ -1,28 +1,11 @@
-package worker
+package gorgeous
 
 import (
 	"context"
 	"time"
 
 	"github.com/qgymje/gorgeous/provider"
-	"github.com/qgymje/gorgeous/supervisor"
 )
-
-type Option func(w *Worker) error
-
-func WithLogger(l provider.ILogger) Option {
-	return func(w *Worker) error {
-		w.logger = l
-		return nil
-	}
-}
-
-func WithMetrics(metrics provider.IMetrics) Option {
-	return func(w *Worker) error {
-		w.metrics = metrics
-		return nil
-	}
-}
 
 type Worker struct {
 	ctx  context.Context
@@ -42,21 +25,18 @@ type Worker struct {
 	done chan struct{}
 }
 
-func NewWorker(ctx context.Context, handler provider.IWorkHandler, opts ...Option) (*Worker, error) {
+func NewWorker(ctx context.Context, handler provider.IWorkHandler, logger provider.ILogger, metrics provider.IMetrics) (*Worker, error) {
 	w := new(Worker)
 	w.ctx = ctx
 	w.handler = handler
 	w.name = handler.Name()
 	w.size = handler.Size()
+	w.logger = logger
+	w.metrics = metrics
+
 	w.data = make(chan interface{})
 	w.err = make(chan error, 1)
 	w.done = make(chan struct{}, w.size)
-
-	for _, opt := range opts {
-		if err := opt(w); err != nil {
-			return nil, err
-		}
-	}
 
 	return w, nil
 }
@@ -67,7 +47,7 @@ func (w *Worker) Work() chan<- interface{} {
 
 func (w *Worker) Start() {
 	for i := 0; i < w.size; i++ {
-		supervisor.Supervisor(supervisor.Worker(w.run), 2000)
+		supervisor(worker(w.run), 2000)
 	}
 }
 

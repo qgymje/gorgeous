@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/qgymje/gorgeous/provider"
+	"git.verystar.cn/GaomingQian/gorgeous/provider"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,10 +48,6 @@ func (h *workerDemo) HandleData(data interface{}) (interface{}, error) {
 	return "data that pass to next worker", fmt.Errorf("some error: data = %+v", data)
 }
 
-func (h *workerDemo) SetNext(provider.IWorkHandler) {
-
-}
-
 func (h *workerDemo) Next() provider.IWorkHandler {
 	return nil
 }
@@ -64,7 +60,7 @@ func (h *workerDemo) Close() error {
 func Test_startTask(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	gor, err := NewGorgeous(ctx)
+	gor, err := New(ctx)
 	assert.Nil(t, err)
 
 	gor.Add("demo", &fetcherDemo{}, &workerDemo{})

@@ -1,33 +1,11 @@
-package fetcher
+package gorgeous
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/qgymje/gorgeous/provider"
-	"github.com/qgymje/gorgeous/supervisor"
 )
-
-type Option func(f *Fetcher) error
-
-func WithLogger(l provider.ILogger) Option {
-	return func(f *Fetcher) error {
-		if l == nil {
-			return errors.New("logger is nil")
-		}
-
-		f.logger = l
-		return nil
-	}
-}
-
-func WithMetrics(metrics provider.IMetrics) Option {
-	return func(f *Fetcher) error {
-		f.metrics = metrics
-		return nil
-	}
-}
 
 type Fetcher struct {
 	ctx  context.Context
@@ -43,22 +21,18 @@ type Fetcher struct {
 	done chan struct{}
 }
 
-func NewFetcher(ctx context.Context, handler provider.IFetchHandler, opts ...Option) (*Fetcher, error) {
+func NewFetcher(ctx context.Context, handler provider.IFetchHandler, logger provider.ILogger, metrics provider.IMetrics) (*Fetcher, error) {
 	f := new(Fetcher)
 	f.ctx = ctx
 	f.name = handler.Name()
 	f.size = handler.Size()
 	f.handler = handler
+	f.logger = logger
+	f.metrics = metrics
 
 	f.data = make(chan interface{})
 	f.err = make(chan error, 1)
 	f.done = make(chan struct{}, f.size)
-
-	for _, opt := range opts {
-		if err := opt(f); err != nil {
-			return nil, err
-		}
-	}
 
 	return f, nil
 }
@@ -73,7 +47,7 @@ func (f *Fetcher) Size() int {
 
 func (f *Fetcher) Start() {
 	for i := 0; i < f.size; i++ {
-		supervisor.Supervisor(supervisor.Worker(f.run), 2000)
+		supervisor(worker(f.run), 2000)
 	}
 }
 

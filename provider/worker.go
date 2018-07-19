@@ -12,7 +12,6 @@ type IWorkHandler interface {
 	Name() string
 	Size() int
 	HandleData(interface{}) (interface{}, error)
-	SetNext(IWorkHandler)
 	Next() IWorkHandler
 	Close() error
 }

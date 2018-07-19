@@ -2,7 +2,6 @@ package gorgeous
 
 import (
 	"context"
-	"errors"
 	"log"
 	"os"
 	"os/signal"
@@ -10,36 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/qgymje/gorgeous/dispatcher"
-	"github.com/qgymje/gorgeous/fetcher"
 	"github.com/qgymje/gorgeous/provider"
-	"github.com/qgymje/gorgeous/worker"
 )
-
-type Option func(*Gorgeous) error
-
-func WithLogger(l provider.ILogger) Option {
-	return func(d *Gorgeous) error {
-		if l == nil {
-			return errors.New("logger is nil")
-		}
-
-		d.logger = l
-		return nil
-	}
-}
-
-func WithMetrics(name string, metrics provider.IMetrics) Option {
-	return func(d *Gorgeous) error {
-		if name == "" {
-			return errors.New("metrics name is empty")
-		}
-
-		d.metricsName = name
-		d.metrics = metrics
-		return nil
-	}
-}
 
 type task struct {
 	name          string
@@ -122,7 +93,7 @@ func (g *Gorgeous) run(t task) error {
 	workers := []provider.IWorker{}
 
 	for _, fh := range t.fetchHandlers {
-		f, err := fetcher.NewFetcher(g.ctx, fh, fetcher.WithLogger(g.logger), fetcher.WithMetrics(g.metrics))
+		f, err := NewFetcher(g.ctx, fh, g.logger, g.metrics)
 		if err != nil {
 			return err
 		}
@@ -130,14 +101,14 @@ func (g *Gorgeous) run(t task) error {
 	}
 
 	for _, wh := range t.workHandlers {
-		w, err := worker.NewWorker(g.ctx, wh, worker.WithLogger(g.logger), worker.WithMetrics(g.metrics))
+		w, err := NewWorker(g.ctx, wh, g.logger, g.metrics)
 		if err != nil {
 			return err
 		}
 
 		nextHandler := wh.Next()
 		for nextHandler != nil {
-			nw, err := worker.NewWorker(g.ctx, nextHandler, worker.WithLogger(g.logger), worker.WithMetrics(g.metrics))
+			nw, err := NewWorker(g.ctx, nextHandler, g.logger, g.metrics)
 			if err != nil {
 				return err
 			}
@@ -150,13 +121,13 @@ func (g *Gorgeous) run(t task) error {
 		workers = append(workers, w)
 	}
 
-	dispatch, err := dispatcher.NewDispatcher(
+	dispatch, err := NewDispatcher(
 		g.ctx,
+		t.name,
 		fetchers,
 		workers,
-		dispatcher.WithName(t.name),
-		dispatcher.WithLogger(g.logger),
-		dispatcher.WithMetrics(g.metrics),
+		g.logger,
+		g.metrics,
 	)
 	if err != nil {
 		return err

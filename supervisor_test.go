@@ -1,4 +1,4 @@
-package supervisor
+package gorgeous
 
 import (
 	"log"
@@ -11,6 +11,6 @@ func Test_supervisor(t *testing.T) {
 		log.Println("I'm paniced")
 		panic("i'm panicking")
 	}
-	Supervisor(Worker(f), 10)
+	supervisor(worker(f), 10)
 	time.Sleep(1 * time.Second)
 }

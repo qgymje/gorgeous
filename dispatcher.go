@@ -1,42 +1,13 @@
-package dispatcher
+package gorgeous
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/qgymje/gorgeous/provider"
-	"github.com/qgymje/gorgeous/supervisor"
 )
 
 var _ provider.IDispatcher = (*Dispatcher)(nil)
-
-type Option func(*Dispatcher) error
-
-func WithName(name string) Option {
-	return func(d *Dispatcher) error {
-		d.name = name
-		return nil
-	}
-}
-
-func WithLogger(l provider.ILogger) Option {
-	return func(d *Dispatcher) error {
-		if l == nil {
-			return errors.New("logger is nil")
-		}
-
-		d.logger = l
-		return nil
-	}
-}
-
-func WithMetrics(metrics provider.IMetrics) Option {
-	return func(d *Dispatcher) error {
-		d.metrics = metrics
-		return nil
-	}
-}
 
 // Dispatcher receive data from fetcher
 // collect related objects to do the job
@@ -57,17 +28,14 @@ type Dispatcher struct {
 }
 
 // NewDispatcher create a new workerpool
-func NewDispatcher(ctx context.Context, fetchers []provider.IFetcher, workers []provider.IWorker, opts ...Option) (*Dispatcher, error) {
+func NewDispatcher(ctx context.Context, name string, fetchers []provider.IFetcher, workers []provider.IWorker, logger provider.ILogger, metrics provider.IMetrics) (*Dispatcher, error) {
 	d := new(Dispatcher)
 	d.ctx = ctx
+	d.name = name
 	d.fetchers = fetchers
 	d.workers = workers
-
-	for _, opt := range opts {
-		if err := opt(d); err != nil {
-			return nil, err
-		}
-	}
+	d.logger = logger
+	d.metrics = metrics
 
 	var size int
 	for _, f := range fetchers {
@@ -99,7 +67,7 @@ func (d *Dispatcher) Start() {
 	d.mergedInput()
 
 	for i := 0; i < d.size; i++ {
-		supervisor.Supervisor(supervisor.Worker(d.run), 2000)
+		supervisor(worker(d.run), 2000)
 	}
 }
 
