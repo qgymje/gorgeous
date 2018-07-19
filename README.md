@@ -72,9 +72,6 @@ func (h *workerDemo) HandleData(data interface{}) (interface{}, error) {
 	return "data that pass to next worker", fmt.Errorf("some error: data = %+v", data)
 }
 
-func (h *workerDemo) SetNext(provider.IWorkHandler) {
-}
-
 func (h *workerDemo) Next() provider.IWorkHandler {
 	return nil
 }
@@ -90,7 +87,7 @@ func (h *workerDemo) Close() error {
 ```go
 
 ctx, cancel := context.WithCancel(context.Background()) // 启动一个context用于整体关闭任务
-gor, err := NewGorgeous(ctx) // 生成一个Gorgeous实例
+gor, err := gorgeous.New(ctx) // 生成一个Gorgeous实例
 
 gor.Add("demo", &fetcherDemo{}, &workerDemo{}) //添加一个任务,提供名字，fetchHandler, workHandler
 
